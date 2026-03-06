@@ -1,102 +1,157 @@
-# Cool Game
-
-import java.util.ArrayList;
-import java.util.Scanner;
-
-class Item {
-    String name;
-    int price;
-
-    Item(String name, int price) {
-        this.name = name;
-        this.price = price;
-    }
-}
-
-class Shop {
-    ArrayList<Item> items = new ArrayList<>();
-
-    void addItem(Item item) {
-        items.add(item);
-    }
-
-    void displayItems() {
-        System.out.println("Available Items:");
-        for (Item item : items) {
-            System.out.println(item.name + " - $" + item.price);
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>⚔️ My Cool RPG Shop</title>
+    <style>
+        /* CSS: Dit maakt de game mooi */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e;
+            color: #e9e9e9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
-    }
-}
 
-class Player {
-    String name;
-    int money;
-
-    Player(String name, int money) {
-        this.name = name;
-        this.money = money;
-    }
-
-    void buyItem(Item item) {
-        if (money >= item.price) {
-            money -= item.price;
-            System.out.println(name + " bought " + item.name);
-        } else {
-            System.out.println("Not enough money to buy " + item.name);
+        .stats-bar {
+            background: #16213e;
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 2px solid #e94560;
+            font-size: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.3);
         }
-    }
-}
 
-public class Game {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Shop weaponShop = new Shop();
-        Shop playerShop = new Shop();
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
 
-        weaponShop.addItem(new Item("Sword", 100));
-        weaponShop.addItem(new Item("Bow", 150));
-        playerShop.addItem(new Item("Health Potion", 50));
-        playerShop.addItem(new Item("Mana Potion", 75));
+        .shop-section {
+            background: #0f3460;
+            padding: 20px;
+            border-radius: 15px;
+            width: 300px;
+            text-align: center;
+        }
 
-        System.out.print("Enter player name: ");
-        String playerName = scanner.nextLine();
-        Player player = new Player(playerName, 200);
+        h2 { color: #e94560; }
 
-        while (true) {
-            System.out.println("\n1. Visit Weapon Shop");
-            System.out.println("2. Visit Player Shop");
-            System.out.println("3. Exit");
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
+        .item-card {
+            background: #1a1a2e;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            transition: 0.3s;
+        }
 
-            switch (choice) {
-                case 1:
-                    weaponShop.displayItems();
-                    System.out.print("Choose an item to buy: ");
-                    String weaponChoice = scanner.next();
-                    for (Item item : weaponShop.items) {
-                        if (item.name.equalsIgnoreCase(weaponChoice)) {
-                            player.buyItem(item);
-                        }
-                    }
-                    break;
-                case 2:
-                    playerShop.displayItems();
-                    System.out.print("Choose an item to buy: ");
-                    String playerChoice = scanner.next();
-                    for (Item item : playerShop.items) {
-                        if (item.name.equalsIgnoreCase(playerChoice)) {
-                            player.buyItem(item);
-                        }
-                    }
-                    break;
-                case 3:
-                    System.out.println("Exiting the game.");
-                    scanner.close();
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+        .item-card:hover { border-color: #e94560; }
+
+        button {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        button:hover { background: #ff5e78; }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        #log {
+            margin-top: 30px;
+            font-style: italic;
+            color: #aaa;
+        }
+
+        .inventory {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>⚔️ RPG Shop Game</h1>
+
+    <div class="stats-bar">
+        💰 Goud: <span id="money">200</span>
+    </div>
+
+    <div class="container">
+        <!-- Weapon Shop -->
+        <div class="shop-section">
+            <h2>Wapen Winkel</h2>
+            <div class="item-card">
+                <p>🗡️ Sword - $100</p>
+                <button onclick="buyItem('Sword', 100)">Koop</button>
+            </div>
+            <div class="item-card">
+                <p>🏹 Bow - $150</p>
+                <button onclick="buyItem('Bow', 150)">Koop</button>
+            </div>
+        </div>
+
+        <!-- Player Shop (Items) -->
+        <div class="shop-section">
+            <h2>Items & Potions</h2>
+            <div class="item-card">
+                <p>🧪 Health Potion - $50</p>
+                <button onclick="buyItem('Health Potion', 50)">Koop</button>
+            </div>
+            <div class="item-card">
+                <p>✨ Mana Potion - $75</p>
+                <button onclick="buyItem('Mana Potion', 75)">Koop</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="log">Welkom in de winkel, reiziger!</div>
+
+    <div class="inventory">
+        Rugzak: <span id="inventory-list">Leeg</span>
+    </div>
+
+    <script>
+        // JavaScript: De logica van je game
+        let money = 200;
+        let inventory = [];
+
+        function buyItem(name, price) {
+            const moneyDisplay = document.getElementById('money');
+            const logDisplay = document.getElementById('log');
+            const invDisplay = document.getElementById('inventory-list');
+
+            if (money >= price) {
+                money -= price;
+                inventory.push(name);
+                
+                // Update het scherm
+                moneyDisplay.innerText = money;
+                logDisplay.innerText = "Je hebt de " + name + " gekocht!";
+                logDisplay.style.color = "#00ff88";
+                
+                invDisplay.innerText = inventory.join(", ");
+            } else {
+                logDisplay.innerText = "Niet genoeg goud voor de " + name + "!";
+                logDisplay.style.color = "#ff4444";
             }
         }
-    }
-}
+    </script>
+
+</body>
+</html>
