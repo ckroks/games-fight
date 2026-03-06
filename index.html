@@ -2,156 +2,207 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <title>⚔️ My Cool RPG Shop</title>
+    <title>⛏️ Minecraft Battle Sim</title>
     <style>
-        /* CSS: Dit maakt de game mooi */
+        /* Minecraft Font en Style */
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://cdnfonts.com') format('woff');
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a2e;
-            color: #e9e9e9;
+            background: #4a4a4a url('https://transparenttextures.com');
+            font-family: 'Minecraft', sans-serif;
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding-top: 50px;
         }
 
-        .stats-bar {
-            background: #16213e;
-            padding: 15px 30px;
-            border-radius: 50px;
-            border: 2px solid #e94560;
-            font-size: 24px;
-            margin-bottom: 30px;
-            box-shadow: 0 0 15px rgba(233, 69, 96, 0.3);
-        }
-
-        .container {
+        /* Battle Arena */
+        .arena {
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-around;
+            width: 800px;
+            background: #2a2a2a;
+            padding: 40px;
+            border: 4px solid #000;
+            image-rendering: pixelated;
+            position: relative;
         }
 
-        .shop-section {
-            background: #0f3460;
-            padding: 20px;
-            border-radius: 15px;
-            width: 300px;
+        .entity {
             text-align: center;
+            width: 150px;
         }
 
-        h2 { color: #e94560; }
-
-        .item-card {
-            background: #1a1a2e;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #444;
-            transition: 0.3s;
+        .sprite {
+            width: 100px;
+            height: 150px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin: 0 auto;
+            image-rendering: pixelated;
         }
 
-        .item-card:hover { border-color: #e94560; }
+        #steve { background-image: url('https://nocookie.net'); }
+        #zombie { background-image: url('https://nocookie.net'); transform: scaleX(-1); }
 
-        button {
-            background: #e94560;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
+        /* Health Bars */
+        .hp-container { width: 100%; background: #555; border: 2px solid #000; height: 15px; margin-top: 10px; }
+        .hp-fill { height: 100%; background: #ff0000; width: 100%; transition: 0.3s; }
 
-        button:hover { background: #ff5e78; }
-
-        button:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-
-        #log {
+        /* Inventory / Hotbar */
+        .hotbar {
+            display: flex;
+            background: #8b8b8b;
+            border: 3px solid #373737;
+            padding: 2px;
             margin-top: 30px;
-            font-style: italic;
-            color: #aaa;
         }
 
-        .inventory {
+        .slot {
+            width: 50px;
+            height: 50px;
+            background: #8b8b8b;
+            border: 2px solid #373737;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .slot:hover { background: #bdbdbd; }
+        .slot img { width: 40px; image-rendering: pixelated; }
+
+        .slot-label {
+            position: absolute;
+            bottom: -20px;
+            font-size: 10px;
+        }
+
+        /* Log */
+        #log {
             margin-top: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            width: 400px;
+            height: 60px;
+            overflow-y: hidden;
             font-size: 14px;
-            color: #00d4ff;
+        }
+
+        .shaking { animation: shake 0.2s infinite; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, -1px); }
         }
     </style>
 </head>
 <body>
 
-    <h1>⚔️ RPG Shop Game</h1>
+    <h1>MINECRAFT FIGHT</h1>
 
-    <div class="stats-bar">
-        💰 Goud: <span id="money">200</span>
-    </div>
-
-    <div class="container">
-        <!-- Weapon Shop -->
-        <div class="shop-section">
-            <h2>Wapen Winkel</h2>
-            <div class="item-card">
-                <p>🗡️ Sword - $100</p>
-                <button onclick="buyItem('Sword', 100)">Koop</button>
-            </div>
-            <div class="item-card">
-                <p>🏹 Bow - $150</p>
-                <button onclick="buyItem('Bow', 150)">Koop</button>
-            </div>
+    <div class="arena">
+        
+            <h3>Steve</h3>
+            <div id="steve" class="sprite"></div>
+            <div class="hp-container"><div id="player-hp" class="hp-fill"></div></div>
+            <p>HP: <span id="p-hp-text">20</span></p>
         </div>
 
-        <!-- Player Shop (Items) -->
-        <div class="shop-section">
-            <h2>Items & Potions</h2>
-            <div class="item-card">
-                <p>🧪 Health Potion - $50</p>
-                <button onclick="buyItem('Health Potion', 50)">Koop</button>
-            </div>
-            <div class="item-card">
-                <p>✨ Mana Potion - $75</p>
-                <button onclick="buyItem('Mana Potion', 75)">Koop</button>
-            </div>
+        
+            <h3>Zombie</h3>
+            <div id="zombie" class="sprite"></div>
+            <div class="hp-container"><div id="monster-hp" class="hp-fill"></div></div>
+            <p>HP: <span id="m-hp-text">20</span></p>
         </div>
     </div>
 
-    <div id="log">Welkom in de winkel, reiziger!</div>
+    <div id="log">Sla de zombie met je zwaard!</div>
 
-    <div class="inventory">
-        Rugzak: <span id="inventory-list">Leeg</span>
+    <div class="hotbar">
+        <div class="slot" onclick="attack('Diamond Sword', 7)">
+            <img src="https://nocookie.net" alt="Sword">
+            <span class="slot-label">Zwaard</span>
+        </div>
+        <div class="slot" onclick="attack('Iron Axe', 9)">
+            <img src="https://nocookie.net" alt="Axe">
+            <span class="slot-label">Bijl</span>
+        </div>
+        <div class="slot" onclick="heal()">
+            <img src="https://nocookie.net" alt="Golden Apple">
+            <span class="slot-label">Appel</span>
+        </div>
     </div>
 
     <script>
-        // JavaScript: De logica van je game
-        let money = 200;
-        let inventory = [];
+        let playerHp = 20;
+        let monsterHp = 20;
+        let canAttack = true;
 
-        function buyItem(name, price) {
-            const moneyDisplay = document.getElementById('money');
-            const logDisplay = document.getElementById('log');
-            const invDisplay = document.getElementById('inventory-list');
+        function updateUI() {
+            document.getElementById('player-hp').style.width = (playerHp / 20 * 100) + "%";
+            document.getElementById('monster-hp').style.width = (monsterHp / 20 * 100) + "%";
+            document.getElementById('p-hp-text').innerText = playerHp;
+            document.getElementById('m-hp-text').innerText = monsterHp;
+        }
 
-            if (money >= price) {
-                money -= price;
-                inventory.push(name);
-                
-                // Update het scherm
-                moneyDisplay.innerText = money;
-                logDisplay.innerText = "Je hebt de " + name + " gekocht!";
-                logDisplay.style.color = "#00ff88";
-                
-                invDisplay.innerText = inventory.join(", ");
+        function attack(weapon, damage) {
+            if (!canAttack) return;
+            
+            // Player valt aan
+            let hit = Math.floor(Math.random() * damage) + 1;
+            monsterHp -= hit;
+            addLog(`Jij raakt Zombie met ${weapon} voor ${hit} schade!`);
+            
+            const zombie = document.getElementById('zombie');
+            zombie.classList.add('shaking');
+            setTimeout(() => zombie.classList.remove('shaking'), 200);
+
+            if (monsterHp <= 0) {
+                monsterHp = 0;
+                addLog("✨ Zombie is verslagen! Een nieuwe verschijnt...");
+                setTimeout(() => { monsterHp = 20; updateUI(); }, 1000);
             } else {
-                logDisplay.innerText = "Niet genoeg goud voor de " + name + "!";
-                logDisplay.style.color = "#ff4444";
+                // Zombie slaat terug
+                canAttack = false;
+                setTimeout(() => {
+                    let zHit = Math.floor(Math.random() * 4) + 1;
+                    playerHp -= zHit;
+                    addLog(`😱 Zombie bijt jou! -${zHit} HP`);
+                    
+                    const steve = document.getElementById('steve');
+                    steve.style.filter = "sepia(1) saturate(5) hue-rotate(-50deg)";
+                    setTimeout(() => steve.style.filter = "none", 200);
+                    
+                    if (playerHp <= 0) {
+                        playerHp = 0;
+                        alert("Steve fainted! Game over.");
+                        location.reload();
+                    }
+                    canAttack = true;
+                    updateUI();
+                }, 600);
+            }
+            updateUI();
+        }
+
+        function heal() {
+            if (playerHp < 20) {
+                playerHp = Math.min(20, playerHp + 10);
+                addLog("🍎 Je eet een Gouden Appel! +10 HP");
+                updateUI();
             }
         }
-    </script>
 
+        function addLog(msg) {
+            const log = document.getElementById('log');
+            log.innerHTML = msg + "<br>" + log.innerHTML;
+        }
+    </script>
 </body>
 </html>
