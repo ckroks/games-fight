@@ -2,207 +2,206 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <title>⛏️ Minecraft Battle Sim</title>
+    <title>⛏️ Minecraft 2D Battle</title>
     <style>
-        /* Minecraft Font en Style */
-        @font-face {
-            font-family: 'Minecraft';
-            src: url('https://cdnfonts.com') format('woff');
+        /* Basis styling (Minecraft UI look) */
+        body { 
+            background-color: #313131; 
+            color: white; 
+            font-family: 'Courier New', Courier, monospace; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
         }
 
-        body {
-            background: #4a4a4a url('https://transparenttextures.com');
-            font-family: 'Minecraft', sans-serif;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 50px;
+        #game-container {
+            width: 500px;
+            background-color: #c6c6c6;
+            border: 4px solid #555;
+            padding: 20px;
+            box-shadow: 10px 10px 0px #000;
+            color: #333;
         }
 
-        /* Battle Arena */
-        .arena {
+        /* Battle Scene */
+        #battle-scene {
+            background-color: #70f0ff; /* Lucht */
+            border: 4px solid #373737;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-around;
-            width: 800px;
-            background: #2a2a2a;
-            padding: 40px;
-            border: 4px solid #000;
-            image-rendering: pixelated;
-            position: relative;
+            align-items: flex-end;
+            padding-bottom: 10px;
+            background-image: linear-gradient(to bottom, #70f0ff 70%, #55a040 70%); /* Gras */
         }
 
         .entity {
-            text-align: center;
-            width: 150px;
+            font-size: 80px;
+            transition: transform 0.1s, filter 0.1s;
+            user-select: none;
         }
 
-        .sprite {
-            width: 100px;
-            height: 150px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            margin: 0 auto;
-            image-rendering: pixelated;
-        }
+        /* HP Balken */
+        .hp-container { width: 100%; background: #333; height: 15px; border: 2px solid #000; margin-top: 5px; }
+        .hp-bar { height: 100%; background: #ff0000; width: 100%; transition: width 0.3s; }
+        .stats { font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; }
 
-        #steve { background-image: url('https://nocookie.net'); }
-        #zombie { background-image: url('https://nocookie.net'); transform: scaleX(-1); }
-
-        /* Health Bars */
-        .hp-container { width: 100%; background: #555; border: 2px solid #000; height: 15px; margin-top: 10px; }
-        .hp-fill { height: 100%; background: #ff0000; width: 100%; transition: 0.3s; }
-
-        /* Inventory / Hotbar */
+        /* De Hotbar (Winkel) */
         .hotbar {
             display: flex;
+            justify-content: center;
+            gap: 10px;
             background: #8b8b8b;
+            padding: 10px;
             border: 3px solid #373737;
-            padding: 2px;
-            margin-top: 30px;
+            margin-top: 15px;
         }
 
         .slot {
-            width: 50px;
-            height: 50px;
-            background: #8b8b8b;
-            border: 2px solid #373737;
+            width: 60px;
+            height: 60px;
+            background: #c6c6c6;
+            border: 3px solid #373737;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            position: relative;
+            font-size: 24px;
         }
 
-        .slot:hover { background: #bdbdbd; }
-        .slot img { width: 40px; image-rendering: pixelated; }
+        .slot:hover { border-color: #fff; background: #ddd; }
+        .price { font-size: 10px; font-weight: bold; color: #555; }
 
-        .slot-label {
-            position: absolute;
-            bottom: -20px;
-            font-size: 10px;
-        }
+        /* Animatie classes */
+        .hit { filter: brightness(2) saturate(5) sepia(1) hue-rotate(-50deg); transform: translateX(10px); }
+        .attack-anim { transform: translateX(50px) scale(1.1); }
 
-        /* Log */
         #log {
-            margin-top: 20px;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            width: 400px;
+            background: #000;
+            color: #00ff00;
             height: 60px;
+            font-size: 12px;
+            padding: 10px;
+            margin-top: 10px;
             overflow-y: hidden;
-            font-size: 14px;
+            border: 2px solid #555;
         }
 
-        .shaking { animation: shake 0.2s infinite; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px); }
-            50% { transform: translate(-1px, -1px); }
-            100% { transform: translate(1px, -1px); }
+        button#attack-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            background: #3c8527;
+            color: white;
+            border: 3px solid #1e4213;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
         }
+        button#attack-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
-    <h1>MINECRAFT FIGHT</h1>
-
-    <div class="arena">
-        
-            <h3>Steve</h3>
-            <div id="steve" class="sprite"></div>
-            <div class="hp-container"><div id="player-hp" class="hp-fill"></div></div>
-            <p>HP: <span id="p-hp-text">20</span></p>
-        </div>
-
-        
-            <h3>Zombie</h3>
-            <div id="zombie" class="sprite"></div>
-            <div class="hp-container"><div id="monster-hp" class="hp-fill"></div></div>
-            <p>HP: <span id="m-hp-text">20</span></p>
-        </div>
+<div id="game-container">
+    <div class="stats">
+        <div>XP: <span id="xp-val" style="color: #3c8527;">0</span></div>
+        <div>STEVE ❤️</div>
+    </div>
+    
+    <div id="battle-scene">
+        🧍</div>
+        🧟</div>
     </div>
 
-    <div id="log">Sla de zombie met je zwaard!</div>
+    <div class="hp-container"><div id="enemy-hp" class="hp-bar"></div></div>
+    <div style="text-align:center; font-size: 12px; margin-top: 2px;">MONSTER HP</div>
+
+    <button id="attack-btn" onclick="attack()">SLA DE ZOMBIE! 👊</button>
 
     <div class="hotbar">
-        <div class="slot" onclick="attack('Diamond Sword', 7)">
-            <img src="https://nocookie.net" alt="Sword">
-            <span class="slot-label">Zwaard</span>
-        </div>
-        <div class="slot" onclick="attack('Iron Axe', 9)">
-            <img src="https://nocookie.net" alt="Axe">
-            <span class="slot-label">Bijl</span>
-        </div>
-        <div class="slot" onclick="heal()">
-            <img src="https://nocookie.net" alt="Golden Apple">
-            <span class="slot-label">Appel</span>
-        </div>
+        <div class="slot" onclick="buy('Iron Sword', 50, 10)">🗡️<span class="price">50</span></div>
+        <div class="slot" onclick="buy('Diamond Sword', 150, 25)">💎<span class="price">150</span></div>
+        <div class="slot" onclick="buy('Golden Apple', 40, 0, 50)">🍎<span class="price">40</span></div>
     </div>
 
-    <script>
-        let playerHp = 20;
-        let monsterHp = 20;
-        let canAttack = true;
+    <div id="log">Welkom in Minecraft Battle! Verzamel XP...</div>
+</div>
 
-        function updateUI() {
-            document.getElementById('player-hp').style.width = (playerHp / 20 * 100) + "%";
-            document.getElementById('monster-hp').style.width = (monsterHp / 20 * 100) + "%";
-            document.getElementById('p-hp-text').innerText = playerHp;
-            document.getElementById('m-hp-text').innerText = monsterHp;
-        }
+<script>
+    let xp = 0;
+    let playerDmg = 5;
+    let playerHp = 100;
+    let enemyMaxHp = 50;
+    let enemyHp = 50;
+    let isAttacking = false;
 
-        function attack(weapon, damage) {
-            if (!canAttack) return;
-            
-            // Player valt aan
-            let hit = Math.floor(Math.random() * damage) + 1;
-            monsterHp -= hit;
-            addLog(`Jij raakt Zombie met ${weapon} voor ${hit} schade!`);
-            
-            const zombie = document.getElementById('zombie');
-            zombie.classList.add('shaking');
-            setTimeout(() => zombie.classList.remove('shaking'), 200);
+    function attack() {
+        if(isAttacking) return;
+        isAttacking = true;
 
-            if (monsterHp <= 0) {
-                monsterHp = 0;
-                addLog("✨ Zombie is verslagen! Een nieuwe verschijnt...");
-                setTimeout(() => { monsterHp = 20; updateUI(); }, 1000);
-            } else {
-                // Zombie slaat terug
-                canAttack = false;
-                setTimeout(() => {
-                    let zHit = Math.floor(Math.random() * 4) + 1;
-                    playerHp -= zHit;
-                    addLog(`😱 Zombie bijt jou! -${zHit} HP`);
-                    
-                    const steve = document.getElementById('steve');
-                    steve.style.filter = "sepia(1) saturate(5) hue-rotate(-50deg)";
-                    setTimeout(() => steve.style.filter = "none", 200);
-                    
-                    if (playerHp <= 0) {
-                        playerHp = 0;
-                        alert("Steve fainted! Game over.");
-                        location.reload();
-                    }
-                    canAttack = true;
-                    updateUI();
-                }, 600);
-            }
+        // Player aanval animatie
+        const p = document.getElementById('player');
+        const e = document.getElementById('enemy');
+        p.classList.add('attack-anim');
+
+        setTimeout(() => {
+            // Hit effect op de zombie
+            e.classList.add('hit');
+            enemyHp -= playerDmg;
             updateUI();
-        }
+            addLog("Jij raakt de zombie voor " + playerDmg + " schade!");
 
-        function heal() {
-            if (playerHp < 20) {
-                playerHp = Math.min(20, playerHp + 10);
-                addLog("🍎 Je eet een Gouden Appel! +10 HP");
-                updateUI();
+            if(enemyHp <= 0) {
+                winBattle();
             }
-        }
 
-        function addLog(msg) {
-            const log = document.getElementById('log');
-            log.innerHTML = msg + "<br>" + log.innerHTML;
+            setTimeout(() => {
+                p.classList.remove('attack-anim');
+                e.classList.remove('hit');
+                isAttacking = false;
+            }, 100);
+        }, 100);
+    }
+
+    function winBattle() {
+        let reward = 25 + Math.floor(Math.random() * 20);
+        xp += reward;
+        addLog("✨ Verslagen! +" + reward + " XP verdiend!");
+        
+        // Maak vijand sterker voor de volgende ronde
+        enemyMaxHp += 20;
+        enemyHp = enemyMaxHp;
+        updateUI();
+    }
+
+    function buy(name, cost, dmgBonus, heal = 0) {
+        if (xp >= cost) {
+            xp -= cost;
+            playerDmg += dmgBonus;
+            addLog("Gekocht: " + name + "!");
+            if(heal > 0) addLog("Gezondheid hersteld!");
+            updateUI();
+        } else {
+            addLog("Te weinig XP voor " + name + "!");
         }
-    </script>
+    }
+
+    function updateUI() {
+        document.getElementById('xp-val').innerText = xp;
+        document.getElementById('enemy-hp').style.width = (enemyHp / enemyMaxHp * 100) + "%";
+    }
+
+    function addLog(msg) {
+        const log = document.getElementById('log');
+        log.innerHTML = "> " + msg + "<br>" + log.innerHTML;
+    }
+</script>
+
 </body>
 </html>
