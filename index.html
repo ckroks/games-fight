@@ -1,0 +1,102 @@
+# Cool Game
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Item {
+    String name;
+    int price;
+
+    Item(String name, int price) {
+        this.name = name;
+        this.price = price;
+    }
+}
+
+class Shop {
+    ArrayList<Item> items = new ArrayList<>();
+
+    void addItem(Item item) {
+        items.add(item);
+    }
+
+    void displayItems() {
+        System.out.println("Available Items:");
+        for (Item item : items) {
+            System.out.println(item.name + " - $" + item.price);
+        }
+    }
+}
+
+class Player {
+    String name;
+    int money;
+
+    Player(String name, int money) {
+        this.name = name;
+        this.money = money;
+    }
+
+    void buyItem(Item item) {
+        if (money >= item.price) {
+            money -= item.price;
+            System.out.println(name + " bought " + item.name);
+        } else {
+            System.out.println("Not enough money to buy " + item.name);
+        }
+    }
+}
+
+public class Game {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Shop weaponShop = new Shop();
+        Shop playerShop = new Shop();
+
+        weaponShop.addItem(new Item("Sword", 100));
+        weaponShop.addItem(new Item("Bow", 150));
+        playerShop.addItem(new Item("Health Potion", 50));
+        playerShop.addItem(new Item("Mana Potion", 75));
+
+        System.out.print("Enter player name: ");
+        String playerName = scanner.nextLine();
+        Player player = new Player(playerName, 200);
+
+        while (true) {
+            System.out.println("\n1. Visit Weapon Shop");
+            System.out.println("2. Visit Player Shop");
+            System.out.println("3. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    weaponShop.displayItems();
+                    System.out.print("Choose an item to buy: ");
+                    String weaponChoice = scanner.next();
+                    for (Item item : weaponShop.items) {
+                        if (item.name.equalsIgnoreCase(weaponChoice)) {
+                            player.buyItem(item);
+                        }
+                    }
+                    break;
+                case 2:
+                    playerShop.displayItems();
+                    System.out.print("Choose an item to buy: ");
+                    String playerChoice = scanner.next();
+                    for (Item item : playerShop.items) {
+                        if (item.name.equalsIgnoreCase(playerChoice)) {
+                            player.buyItem(item);
+                        }
+                    }
+                    break;
+                case 3:
+                    System.out.println("Exiting the game.");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+}
